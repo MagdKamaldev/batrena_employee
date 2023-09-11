@@ -14,10 +14,13 @@ class FormScreen extends StatefulWidget {
   State<FormScreen> createState() => _FormScreenState();
 }
 
+List<dynamic> branchList = [];
+late Position userPosition;
+dynamic selectedBranch;
+bool isLoaded = false;
+
 class _FormScreenState extends State<FormScreen> {
-  List<dynamic> branchList = [];
-  late Position userPosition;
-  dynamic selectedBranch;
+
 
   Future<Position> _determinePosition() async {
     bool serviceEnabled;
@@ -56,10 +59,17 @@ class _FormScreenState extends State<FormScreen> {
   }
 
   Future<bool> get loadData  async {
-    await http.get(Uri.parse("$SERVER_IP/FetchBranchList")).then((value) => branchList = jsonDecode(value.body));
-    selectedBranch = branchList[0];
-    userPosition = await _determinePosition();
-    return true;
+    if (isLoaded) {
+      return true;
+    } else {
+      branchList.clear();
+      await http.get(Uri.parse("$SERVER_IP/FetchBranchList")).then((value) => branchList = jsonDecode(value.body));
+      selectedBranch = branchList[0];
+      userPosition = await _determinePosition();
+      isLoaded = true;
+      return true;
+    }
+
   }
 
   Future<Response> postData(String url, dynamic data) async {
